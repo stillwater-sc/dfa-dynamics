@@ -4,7 +4,11 @@ project(${PROGRAM_NAME} VERSION 0.1.0)
 
 find_package(OpenGL REQUIRED)
 
-add_executable(${PROGRAM_NAME} src/main.cpp src/glad.c)
+add_executable(${PROGRAM_NAME} 
+	src/glad.c
+	src/shader.cpp
+	src/triangle_mesh.cpp
+	src/main.cpp)
 
 target_include_directories(${PROGRAM_NAME} PRIVATE include)
 target_link_directories(${PROGRAM_NAME} PRIVATE lib)
