@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "shader.hpp"
+#include "material.hpp"
 #include "triangle_mesh.hpp"
 
 
@@ -34,11 +35,24 @@ try {
 	glViewport(0, 0, w, h);
 
 	TriangleMesh* triangle = new TriangleMesh();
+	Material* material = new Material("../img/checker-pattern-horizontal.png");
+	//Material* material = new Material("../img/checker-pattern-diagonal.jpg");
+	//Material* material = new Material("../img/marika_matsumoto.jpg");
+	Material* mask = new Material("../img/mask.jpg");
 
 	unsigned int shader = make_shader(
 		"../src/shaders/vertex.glsl",
 		"../src/shaders/fragment.glsl"
 	);
+
+	// set the texture units
+	glUseProgram(shader);
+	glUniform1i(glGetUniformLocation(shader, "material"), 0);
+	glUniform1i(glGetUniformLocation(shader, "mask"), 1);
+
+	// enable alpha blending
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	while (!glfwWindowShouldClose(window)) {
 
@@ -48,6 +62,8 @@ try {
 
 		glUseProgram(shader);
 
+		material->use(0);
+		mask->use(1);
 		triangle->draw();
 
 		glfwSwapBuffers(window);
@@ -57,6 +73,8 @@ try {
 	glDeleteProgram(shader);
 
 	delete triangle;
+	delete material;
+	delete mask;
 
 	glfwTerminate();
 

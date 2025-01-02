@@ -6,8 +6,10 @@ find_package(OpenGL REQUIRED)
 
 add_executable(${PROGRAM_NAME} 
 	src/glad.c
+	src/stb_image.cpp
 	src/shader.cpp
 	src/triangle_mesh.cpp
+	src/material.cpp
 	src/main.cpp)
 
 target_include_directories(${PROGRAM_NAME} PRIVATE include)
