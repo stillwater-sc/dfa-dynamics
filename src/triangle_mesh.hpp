@@ -1,3 +1,4 @@
+#include <vector>
 
 class TriangleMesh {
 public:
@@ -8,7 +9,10 @@ public:
 
 private:
 	unsigned int vertex_count;
-	unsigned int VBO;  // VBO - Vertex Buffer Object
-	unsigned int VAO;  // VAO - Vertex Array Object
 
+	// VAO - Vertex Array Object
+	unsigned int VAO;  
+	
+	// VBO - Vertex Buffer Objects
+	std::vector<unsigned int> VBO;
 };

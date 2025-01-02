@@ -4,30 +4,43 @@
 #include "triangle_mesh.hpp"
 
 TriangleMesh::TriangleMesh() {
-    
-    std::vector<float> data = {
-        -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-         0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-         0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f
-    };
     vertex_count = 3;
+
+    std::vector<float> positions = {
+         -1.0f, -1.0f, 0.0f,
+          1.0f, -1.0f, 0.0f,
+         -1.0f,  1.0f, 0.0f
+    };
+    
+    std::vector<int> colorIndices = {
+		0, 1, 2
+    };
 
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float), data.data(), GL_STATIC_DRAW);
+    // Vertex Buffer objects
+    VBO.resize(2);
+    glGenBuffers(2, VBO.data());
 
     // position
-    // vertexAttribPointer(index, size, type, normalized, stride, pointer)
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 24, (void*)0);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+    glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(float), positions.data(), GL_STATIC_DRAW);
+  // vertexAttribPointer(index, size, type, normalized, stride, pointer)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 /* stride to next attribute */, (void*)0);
     glEnableVertexAttribArray(0);
 
     // color
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 24, (void*)12);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+    glBufferData(GL_ARRAY_BUFFER, colorIndices.size() * sizeof(int), colorIndices.data(), GL_STATIC_DRAW);
+    // vertexAttribIPointer(index, size, type, stride, pointer)
+    glVertexAttribIPointer(1, 1, GL_INT, 4 /* stride to next attribute */, (void*)0);  // <---- notice the attrib integer pointer function signature
     glEnableVertexAttribArray(1);
 
+	// the VBO handles are stored in the VAO
+	// and the specific VBO, that is VBO[0] and VBO[1] are tied to the location 0 and 1 of the vertex shader
+    // location=0 is glVertexAttribPointer( -->0<--...
+    // location=1 is glVertexAttribIPointer( -->1<--...
 }
 
 void TriangleMesh::draw() {
@@ -37,5 +50,5 @@ void TriangleMesh::draw() {
 
 TriangleMesh::~TriangleMesh() {
     glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(2, VBO.data());
 }
