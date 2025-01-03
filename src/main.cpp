@@ -2,6 +2,9 @@
 #include <vector>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "shader.hpp"
 #include "material.hpp"
 #include "triangle_mesh.hpp"
@@ -54,13 +57,37 @@ try {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	while (!glfwWindowShouldClose(window)) {
+	glm::vec3 quadPos(0.1f, -0.2f, 0.0f);
 
+	// fetch uniform locations
+	unsigned int modelLoc = glGetUniformLocation(shader, "model");
+	unsigned int viewLoc = glGetUniformLocation(shader, "view");
+	unsigned int projectionLoc = glGetUniformLocation(shader, "projection");
+	
+	// set up the view matrix
+	glm::vec3 cameraPos = glm::vec3(-5.0f, 0.0f, 3.0f);
+	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f); // the model to look at is at the origin
+	glm::vec3 cameraUpDirction = glm::vec3(0.0f, 0.0f, 1.0f);
+	glm::mat4 view = glm::lookAt(cameraPos, cameraTarget, cameraUpDirction);
+	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+	glm::mat4 projection = glm::perspective(45.0f, float(w) / float(h), 0.1f, 10.0f);
+	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+	// render loop
+	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 
-		glClear(GL_COLOR_BUFFER_BIT);
+		glm::mat4 model = glm::mat4(1.0f); // identity matrix
+		model = glm::translate(model, quadPos);
+		model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
 
+
+		glClear(GL_COLOR_BUFFER_BIT);
 		glUseProgram(shader);
+
+		// upload the model matrix
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
 		material->use(0);
 		mask->use(1);
@@ -70,6 +97,7 @@ try {
 
 	}
 
+	// free up resources
 	glDeleteProgram(shader);
 
 	delete triangle;
